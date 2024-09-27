@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+</head>
+<body>
+    <input type="text" name="" id="location" placeholder="Location">
+    <p class="errormsg">No Location Found</p>
+    <p class="address"></p> 
+    <p class="temp"></p>
+    <p class="feelslike"></p>
+    <p class="humidity"></p>
+    <p class="precip"></p>
+    <p class="dateTime"></p>    
+
+    <script>
+
+        class WeatherApp {
+            constructor() {
+                this.addressElement = document.querySelector('.address');
+                this.tempElement = document.querySelector('.temp');
+                this.feelslikeElement = document.querySelector('.feelslike');
+                this.humidityElement = document.querySelector('.humidity');
+                this.precipElement = document.querySelector('.precip');
+                this.dateTimeElement = document.querySelector('.dateTime');
+                this.apiKey = 'TK5KVZLK6Z7S2Q8KABNRVJ8YN';
+                this.errormsg=document.querySelector('.errormsg');
+                this.initialize();
+            }
+
+            initialize() {
+                document.getElementById('location').addEventListener('keydown', async (event) => {
+                    if (event.key === 'Enter') {
+                        const location = event.target.value;
+                        const weatherData = await this.fetchWeatherData(location);
+                        event.target.value = ''; 
+                        this.updateWeather(weatherData);
+                    }
+                });
+            }
+
+            async fetchWeatherData(location) {
+                const url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${location}?key=${this.apiKey}`;
+                try {
+                    const response = await fetch(url, { mode: 'cors' });
+                    const data = await response.json();
+                    return data;
+                } catch (error) {
+                    console.log('Error fetching weather data', error);
+                    this.errormsg.style.display='block';
+                }
+            }
+
+            updateWeather(data) {
+                if (data) {
+                    this.addressElement.textContent = data.resolvedAddress;
+                    this.tempElement.textContent = `Temperature: ${data.currentConditions.temp}°F`;
+                    this.feelslikeElement.textContent = `Feels like: ${data.currentConditions.feelslike}°F`;
+                    this.humidityElement.textContent = `Humidity: ${data.currentConditions.humidity}%`;
+                    this.precipElement.textContent = `Precipitation: ${data.currentConditions.precipprob}%`;
+                    this.dateTimeElement.textContent = `Time: ${data.currentConditions.datetime}, Timezone: ${data.timezone}`;
+                } else {
+                    console.log('No data found');
+                    this.errormsg.
+
+                }
+            }
+            
+        }
+
+        const weatherApp = new WeatherApp();
+
+    </script>
+
+</body>
+</html>
