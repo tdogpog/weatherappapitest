@@ -4,10 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather App</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <input type="text" name="" id="location" placeholder="Location">
-    <p class="errormsg">No Location Found</p>
+    <div class="searchParent">
+        <input type="text" name="" id="location" placeholder="Location">
+        <p class="errormsg">No Location Found</p>
+    </div>
+
     <p class="address"></p> 
     <p class="temp"></p>
     <p class="feelslike"></p>
@@ -34,6 +38,7 @@
                 document.getElementById('location').addEventListener('keydown', async (event) => {
                     if (event.key === 'Enter') {
                         const location = event.target.value;
+                        //OBJECT HANDLE
                         const weatherData = await this.fetchWeatherData(location);
                         event.target.value = ''; 
                         this.updateWeather(weatherData);
@@ -46,28 +51,43 @@
                 try {
                     const response = await fetch(url, { mode: 'cors' });
                     const data = await response.json();
-                    return data;
+                    
+                    return {
+                        //RETURN AN OBJECT TO THE CALLER 
+                        address: data.resolvedAddress,
+                        temp: data.currentConditions.temp,
+                        feelslike: data.currentConditions.feelslike,
+                        humidity: data.currentConditions.humidity,
+                        precip: data.currentConditions.precipprob,
+                        dateTime: data.currentConditions.datetime,
+                        timezone: data.timezone
+                    }
                 } catch (error) {
                     console.log('Error fetching weather data', error);
-                    this.errormsg.style.display='block';
+                  
                 }
             }
 
             updateWeather(data) {
                 if (data) {
-                    this.addressElement.textContent = data.resolvedAddress;
-                    this.tempElement.textContent = `Temperature: ${data.currentConditions.temp}°F`;
-                    this.feelslikeElement.textContent = `Feels like: ${data.currentConditions.feelslike}°F`;
-                    this.humidityElement.textContent = `Humidity: ${data.currentConditions.humidity}%`;
-                    this.precipElement.textContent = `Precipitation: ${data.currentConditions.precipprob}%`;
-                    this.dateTimeElement.textContent = `Time: ${data.currentConditions.datetime}, Timezone: ${data.timezone}`;
+                    //DESTRUCTURE THE OBJECT 
+                    const { address, temp, feelslike, humidity, precip, dateTime, timezone } = data;
+
+                    this.addressElement.textContent = address;
+                    this.tempElement.textContent = `Temperature: ${temp}°F`;
+                    this.feelslikeElement.textContent = `Feels like: ${feelslike}°F`;
+                    this.humidityElement.textContent = `Humidity: ${humidity}%`;
+                    this.precipElement.textContent = `Precipitation: ${precip}%`;
+                    this.dateTimeElement.textContent = `Time: ${dateTime}, Timezone: ${timezone}`;
+                    
+                    this.errormsg.style.display = 'none'; 
                 } else {
                     console.log('No data found');
-                    this.errormsg.
-
+                    this.errormsg.style.display = 'block'; 
+                    this.errormsg.textContent = 'Error: Unable to fetch weather data'; 
                 }
-            }
-            
+            }   
+                    
         }
 
         const weatherApp = new WeatherApp();
